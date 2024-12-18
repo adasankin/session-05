@@ -37,52 +37,51 @@
 
     const newTodo = document.getElementById("new-todo").value
 
-    let todos = JSON.parse(localStorage.getItem("todos"))
-
-    if (todos) {
-      todos.push({
-        id: todos[todos.length - 1].id + 1,
+    let todos = JSON.parse(localStorage.getItem("todos")) || [];
+      const newTodos = {
+        id: todos.length ? todos[todos.length - 1].id + 1 : 0,
         name: newTodo,
         checked: false
-      })
-    } else {
-      todos = [{
-        id: 0,
-        name: newTodo,
-        checked: false
-      }]
+      };
+      todos.push(newTodos);
+      localStorage.setItem("todos", JSON.stringify(todos));
+      document.getElementById("new-todo").value = "";
+      displayTodo();
     }
-
-    localStorage.setItem("todos", JSON.stringify(todos))
-
-    document.getElementById("new-todo").value = ""
-
-    displayTodo()
-
-   }
 
    function displayTodo() {
-    let todos = JSON.parse(localStorage.getItem("todos"))
-
+    let todos = JSON.parse(localStorage.getItem("todos")) || []
     let list = ""
     
-    if (todos) {
-      todos.forEach((item, idx) => {
-        list = list + `
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <input class="form-check-input me-1" type="checkbox" value="" id=${item.id}>
-              <label class="form-check-label" for=${item.id}>${item.name}</label>
-            </div>
-            <button class="btn btn-danger" id=${"delete-"+item.id}>Delete</button>
-          </li>
-
-        `
-      })
+    todos.forEach((item) => {
+      list = list + `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <input class="form-check-input me-1" type="checkbox" ${item.checked ? 'checked' : ''} id="todo-${item.id}" onchange="toggleTodo(${item.id})">
+          <label class="form-check-label" for="todo-${item.id}">${item.name}</label>
+        </div>
+        <button class="btn btn-danger" onclick="deleteTodo(${item.id})">Delete</button>
+      </li>
+      `})
+     document.getElementById("list-todo").innerHTML = list;
     }
 
-    document.getElementById("list-todo").innerHTML = list
-   }
+    function toggleTodo(id) {
+      let todos = JSON.parse(localStorage.getItem("todos"));
+      const todo = todos.find(todo => todo.id === id);
+      if (todo) {
+        todo.checked = !todo.checked;
+        localStorage.setItem("todos", JSON.stringify(todos));
+        displayTodo();
+      }
+    }
+  
+    function deleteTodo(id) {
+      let todos = JSON.parse(localStorage.getItem("todos"));
+      todos = todos.filter(todo => todo.id !== id);
+      localStorage.setItem("todos", JSON.stringify(todos));
+      displayTodo();
+    }
   </script>
 </body>
 </html>
